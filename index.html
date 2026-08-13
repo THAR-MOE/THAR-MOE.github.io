@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Do You Love Me?</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{
+  background:#fffaf8;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#151515;
+}
+.scene{
+  width:100%;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.card{
+  width:min(100%,430px);
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  padding:20px 15px;
+}
+.character{
+  width:min(72vw,300px);
+  height:min(48vh,300px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:4px;
+}
+.character img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+}
+.character.animate{
+  animation:characterIn .45s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes characterIn{
+  0%{opacity:0;transform:translateY(10px) scale(.94)}
+  65%{opacity:1;transform:translateY(-2px) scale(1.025)}
+  100%{opacity:1;transform:none}
+}
+.text{
+  min-height:55px;
+  width:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  white-space:pre-line;
+  font-size:20px;
+  font-weight:700;
+  line-height:1.15;
+  animation:textIn .35s ease;
+}
+@keyframes textIn{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:none}
+}
+.buttons{
+  height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  position:relative;
+  width:100%;
+  margin-top:0;
+}
+button{
+  border:2px solid #111;
+  border-radius:10px;
+  background:#ffb6c9;
+  color:#7a3f50;
+  padding:10px 22px;
+  min-width:70px;
+  min-height:42px;
+  font-size:15px;
+  box-shadow:0 5px 0 #111, 0 9px 16px rgba(0,0,0,.18);
+  cursor:pointer;
+  transition:transform .2s ease,opacity .2s ease;
+}
+button:active{transform:scale(.9)}
+#no.runaway{
+  position:fixed;
+  z-index:20;
+}
+.hide{
+  opacity:0!important;
+  pointer-events:none!important;
+}
+.final .character{
+  width:min(82vw,340px);
+  height:min(55vh,340px);
+}
+.final .buttons{display:none}
+.final .text{
+  min-height:70px;
+}
+
+#sakura{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:50;
+}
+.sakura-petal{
+  position:absolute;
+  top:-30px;
+  width:14px;
+  height:10px;
+  background:#ff9fba;
+  border:1px solid rgba(120,45,70,.25);
+  border-radius:100% 0 100% 0;
+  opacity:.9;
+  transform:rotate(25deg);
+  animation:sakuraFall linear forwards;
+}
+@keyframes sakuraFall{
+  0%{
+    transform:translate3d(0,-30px,0) rotate(0deg);
+    opacity:0;
+  }
+  10%{opacity:.95}
+  50%{
+    transform:translate3d(var(--sway),50vh,0) rotate(180deg);
+  }
+  100%{
+    transform:translate3d(calc(var(--sway) * -1),110vh,0) rotate(420deg);
+    opacity:.15;
+  }
+}
+
+@media(max-height:600px){
+  .character{height:43vh}
+  .text{font-size:18px}
+}
+</style>
+</head>
+<body>
+<div id="sakura" aria-hidden="true"></div>
+<div class="scene">
+<main class="card" id="card">
+  <div class="character" id="character">
+    <img id="characterImage" src="01_awal.png" alt="Animasi">
+  </div>
+  <div class="text" id="message">Do You Love Me,Lathifa?</div>
+  <div class="buttons" id="buttons">
+    <button id="yes">Yes</button>
+    <button id="no">No</button>
+  </div>
+</main>
+</div>
+
+<script>
+const character=document.getElementById("character");
+const image=document.getElementById("characterImage");
+const message=document.getElementById("message");
+const yes=document.getElementById("yes");
+const no=document.getElementById("no");
+const card=document.getElementById("card");
+
+let state=0;
+let noCount=0;
+
+const scenes=[
+  ["01_awal.png","Do You Love Me,Lathifa?"],
+  ["02_humm.png","Humm! Are you sure"],
+  ["03_dont_do_this.png","Don't do this to me..."],
+  ["04_i_am_gonna_cry.png","I'm gonna cry..."]
+];
+
+function playScene(index){
+  const [img,text]=scenes[index];
+  image.src=img;
+  message.textContent=text;
+
+  character.classList.remove("animate");
+  message.style.animation="none";
+  void character.offsetWidth;
+  void message.offsetWidth;
+  character.classList.add("animate");
+  message.style.animation="textIn .35s ease";
+}
+
+function moveNo(){
+  const margin=12;
+  const maxX=Math.max(margin,window.innerWidth-75);
+  const maxY=Math.max(margin,window.innerHeight-50);
+  no.style.left=(margin+Math.random()*(maxX-margin))+"px";
+  no.style.top=(margin+Math.random()*(maxY-margin))+"px";
+}
+
+no.addEventListener("click",()=>{
+  state++;
+  noCount++;
+
+  if(state===1){
+    playScene(1);
+  }else if(state===2){
+    playScene(2);
+  }else if(state===3){
+    playScene(3);
+    no.classList.add("runaway");
+    moveNo();
+  }else{
+    moveNo();
+    if(noCount>=6) no.classList.add("hide");
+  }
+});
+
+no.addEventListener("mouseenter",()=>{
+  if(state>=3 && !no.classList.contains("hide")) moveNo();
+});
+
+no.addEventListener("touchstart",(event)=>{
+  if(state>=3 && !no.classList.contains("hide")){
+    event.preventDefault();
+    moveNo();
+  }
+},{passive:false});
+
+
+function startSakura(){
+  const container=document.getElementById("sakura");
+  const count=34;
+
+  for(let i=0;i<count;i++){
+    const petal=document.createElement("span");
+    petal.className="sakura-petal";
+    petal.style.left=(Math.random()*100)+"vw";
+    petal.style.setProperty("--sway",((Math.random()*160)-80)+"px");
+    petal.style.animationDuration=(3.5+Math.random()*3.5)+"s";
+    petal.style.animationDelay=(Math.random()*1.2)+"s";
+    petal.style.transform=`rotate(${Math.random()*360}deg) scale(${.65+Math.random()*.7})`;
+    container.appendChild(petal);
+    setTimeout(()=>petal.remove(),8500);
+  }
+}
+
+yes.addEventListener("click",()=>{
+  startSakura();
+  card.classList.add("final");
+  image.src="05_pelukan.png";
+  message.textContent="Hehehehe, I love you,too.\nAtapuu mwahhhh <3";
+
+  character.classList.remove("animate");
+  message.style.animation="none";
+  void character.offsetWidth;
+  void message.offsetWidth;
+  character.classList.add("animate");
+  message.style.animation="textIn .35s ease";
+
+  no.classList.add("hide");
+});
+
+// Pastikan tombol No kembali ke posisi normal saat halaman dimuat.
+window.addEventListener("resize",()=>{
+  if(state>=3 && no.classList.contains("runaway")) moveNo();
+});
+</script>
+</body>
+</html>
